@@ -10,4 +10,6 @@ add_executable(Project3
         backend/Graph.h
         backend/Hashmap.cpp
         backend/Hashmap.h
-        frontend/main.cpp)
+        frontend/main.cpp
+        backend/Channel.h
+        backend/Channel.cpp)
