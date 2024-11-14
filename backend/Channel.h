@@ -4,6 +4,7 @@
 using namespace std;
 
 struct Channel {
+    string id;
     string name;
     string country;
     string category;
@@ -12,7 +13,7 @@ struct Channel {
     int numVideos;
     int subscribers;
 
-    Channel(string n, string cntry, string cat, string pic, string prof, int numVid, int subs);
+    Channel(string i, string n, string cntry, string cat, string pic, string prof, int numVid, int subs);
 
 
 };
