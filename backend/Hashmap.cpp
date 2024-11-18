@@ -70,5 +70,17 @@ int HashMap::count(string key) {
 }
 
 void HashMap::rebalance() {
-
+    vector<hashObj*> newVect(buckets.size()*2, nullptr);
+    bucketCount *= 2;
+    loadFact /= 2;
+    for (auto i: buckets) {
+        if (!i) continue;
+        hashObj* currObj = i;
+        while (i) {
+            int hash; // calculate new hash for each i
+            newVect[hash] = i;
+            i = i->next;
+        }
+    }
+    buckets = newVect;
 }
