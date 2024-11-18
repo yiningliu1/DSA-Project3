@@ -47,14 +47,13 @@ void HashMap::insert(string key, vector<Channel> val) {
 }
 
 vector<Channel> HashMap::retrieve(string key) {
-    int hash;
+    int hash; // calculate hash
     hashObj* currObj = buckets[hash];
     while(currObj) {
-        if (currObj->key == key) break;
+        if (currObj->key == key) return currObj->val;
         currObj = currObj->next;
     }
-    if (currObj) return currObj->val;
-    else return {};
+    return {};
 }
 
 int HashMap::size() {
@@ -66,6 +65,12 @@ bool HashMap::empty() {
 }
 
 int HashMap::count(string key) {
+    int hash; // calculate hash
+    hashObj* currObj = buckets[hash];
+    while(currObj) {
+        if (currObj->key == key) return 1;
+        currObj = currObj->next;
+    }
     return 0;
 }
 
