@@ -15,7 +15,7 @@ class HashMap {
     int numKeys;
     int bucketCount;
     double loadFact;
-    double maxLF = 0.7;
+    const double maxLF = 0.7;
     vector<hashObj*> buckets;
 
 public:
@@ -25,6 +25,7 @@ public:
     int size();
     bool empty();
     int count(string key);
+    void rebalance();
 };
 
 #endif //PROJECT3_HASHMAP_H
