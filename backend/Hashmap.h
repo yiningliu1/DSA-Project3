@@ -20,7 +20,8 @@ class HashMap {
 
 public:
     HashMap();
-    void insert(string key, vector<Channel> val = {});
+    int calculateHash(string id);
+    void insert(string key, Channel val);
     vector<Channel> retrieve(string key);
     int size();
     bool empty();

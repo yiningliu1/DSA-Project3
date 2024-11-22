@@ -9,15 +9,15 @@ HashMap::HashMap() {
     loadFact = 0;
 }
 
-void HashMap::insert(string key, vector<Channel> val) {
-    int hash; // this will be the hash that is calculated
+void HashMap::insert(string key, Channel val) {
+    int hash = calculateHash(val.id); // this will be the hash that is calculated
     bool isNew = true;
     if (buckets[hash]) {
         hashObj* currObj = buckets[hash];
         while(true) {
             if (currObj->key == key) {
                 isNew = false;
-                currObj->val = val;
+                currObj->val.push_back(val);
                 break;
             }
             if (!currObj->next) break;
@@ -27,14 +27,14 @@ void HashMap::insert(string key, vector<Channel> val) {
             hashObj newObj;
             newObj.next = nullptr;
             newObj.key = key;
-            newObj.val = val;
+            newObj.val.push_back(val);
             currObj->next = &newObj;
         }
     } else {
         hashObj newObj;
         newObj.next = nullptr;
         newObj.key = key;
-        newObj.val = val;
+        newObj.val.push_back(val);
         buckets[hash] = &newObj;
     }
     if (isNew) {
@@ -47,7 +47,7 @@ void HashMap::insert(string key, vector<Channel> val) {
 }
 
 vector<Channel> HashMap::retrieve(string key) {
-    int hash; // calculate hash
+    int hash = calculateHash(key); // calculate hash
     hashObj* currObj = buckets[hash];
     while(currObj) {
         if (currObj->key == key) return currObj->val;
@@ -65,7 +65,7 @@ bool HashMap::empty() {
 }
 
 int HashMap::count(string key) {
-    int hash; // calculate hash
+    int hash = calculateHash(key); // calculate hash
     hashObj* currObj = buckets[hash];
     while(currObj) {
         if (currObj->key == key) return 1;
@@ -88,4 +88,13 @@ void HashMap::rebalance() {
         }
     }
     buckets = newVect;
+}
+
+int HashMap::calculateHash(string id) {
+    int hash = 0;
+    for (char c: id) {
+        hash += c;
+    }
+    hash %= bucketCount;
+    return hash;
 }
