@@ -17,6 +17,8 @@ class HashMap {
     double loadFact;
     const double maxLF = 0.7;
     vector<hashObj*> buckets;
+    void clearBuckets();
+    ~HashMap();
 
 public:
     HashMap();

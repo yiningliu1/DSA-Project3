@@ -2,8 +2,7 @@
 #include <iostream>
 #include <vector>
 HashMap::HashMap() {
-    vector<hashObj*> newBuckets(20, nullptr);
-    buckets = newBuckets;
+    buckets.resize(20, nullptr);
     numKeys = 0;
     bucketCount = 20;
     loadFact = 0;
@@ -14,7 +13,7 @@ void HashMap::insert(string key, Channel val) {
     bool isNew = true;
     if (buckets[hash]) {
         hashObj* currObj = buckets[hash];
-        while(true) {
+        while(currObj) {
             if (currObj->key == key) {
                 isNew = false;
                 currObj->val.push_back(val);
@@ -24,18 +23,18 @@ void HashMap::insert(string key, Channel val) {
             currObj = currObj->next;
         }
         if (isNew) {
-            hashObj newObj;
-            newObj.next = nullptr;
-            newObj.key = key;
-            newObj.val.push_back(val);
-            currObj->next = &newObj;
+            hashObj* newObj = new hashObj();
+            newObj->next = nullptr;
+            newObj->key = key;
+            newObj->val.push_back(val);
+            currObj->next = newObj;
         }
     } else {
-        hashObj newObj;
-        newObj.next = nullptr;
-        newObj.key = key;
-        newObj.val.push_back(val);
-        buckets[hash] = &newObj;
+        hashObj* newObj = new hashObj();
+        newObj->next = nullptr;
+        newObj->key = key;
+        newObj->val.push_back(val);
+        buckets[hash] = newObj;
     }
     if (isNew) {
         numKeys++;
@@ -61,7 +60,7 @@ int HashMap::size() {
 }
 
 bool HashMap::empty() {
-    return numKeys > 0;
+    return numKeys == 0;
 }
 
 int HashMap::count(string key) {
@@ -81,14 +80,34 @@ void HashMap::rebalance() {
     for (auto i: buckets) {
         if (!i) continue;
         hashObj* currObj = i;
-        while (i) {
-            int hash; // calculate new hash for each i
-            newVect[hash] = i;
-            i = i->next;
+        while (currObj) {
+            int hash = calculateHash(currObj->key); // Recalculate hash for the resized array
+            if (!newVect[hash]) {
+                newVect[hash] = currObj;
+            } else {
+                hashObj* temp = newVect[hash];
+                while (temp->next) temp = temp->next;
+                temp->next = currObj;
+            }
+            hashObj* nextObj = currObj->next;
+            currObj->next = nullptr;
+            currObj = nextObj;
         }
     }
-    buckets = newVect;
+    clearBuckets();
+    buckets = std::move(newVect);
 }
+
+void HashMap::clearBuckets() {
+    for (hashObj* obj : buckets) {
+        while (obj) {
+            hashObj* next = obj->next;
+            delete obj;
+            obj = next;
+        }
+    }
+}
+
 
 int HashMap::calculateHash(string id) {
     int hash = 0;
@@ -97,4 +116,8 @@ int HashMap::calculateHash(string id) {
     }
     hash %= bucketCount;
     return hash;
+}
+
+HashMap::~HashMap() {
+    clearBuckets();
 }
