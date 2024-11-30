@@ -73,18 +73,6 @@ int HashMap::count(string key) {
     return 0;
 }
 
-<<<<<<< HEAD
-
-int Hashmap::hash_function(string id){
-    unsigned long hash = 0;
-    for (auto c : id){
-        hash = hash + static_cast<int>(c);
-    }
-
-    return hash;
-}
-
-=======
 void HashMap::rebalance() {
     vector<hashObj*> newVect(buckets.size()*2, nullptr);
     bucketCount *= 2;
@@ -133,4 +121,3 @@ int HashMap::calculateHash(string id) {
 HashMap::~HashMap() {
     clearBuckets();
 }
->>>>>>> 80429231957514c62b1999c008a9abd0909755fd
