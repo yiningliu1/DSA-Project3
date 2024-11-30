@@ -15,17 +15,20 @@ class HashMap {
     int numKeys;
     int bucketCount;
     double loadFact;
-    double maxLF = 0.7;
+    const double maxLF = 0.7;
     vector<hashObj*> buckets;
+    void clearBuckets();
+    ~HashMap();
 
 public:
     HashMap();
-    void insert(string key, vector<Channel> val = {});
+    int calculateHash(string id);
+    void insert(string key, Channel val);
     vector<Channel> retrieve(string key);
     int size();
     bool empty();
     int count(string key);
-    int hash_function(string id);
+    void rebalance();
 };
 
 #endif //PROJECT3_HASHMAP_H
