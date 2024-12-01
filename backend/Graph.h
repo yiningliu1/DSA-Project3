@@ -10,9 +10,11 @@ private:
 
 public:
     Graph();
-    void addEdge(Channel a, Channel b, int weight, bool directed = false);
+    void addEdge(Channel& a, Channel& b, int weight);
     bool hasEdge(Channel a, Channel b);
-    vector<Channel> getNeighbors(Channel a);
+    vector<pair<Channel, int>> getNeighbors(Channel a);
+
+    void addChannel(const Channel &channel);
 };
 
 

@@ -5,9 +5,10 @@
 #define PROJECT3_HASHMAP_H
 using namespace std;
 
+// Hashmap with ids as keys that store vectors of pairs of channels and weights.
 struct hashObj {
     string key;
-    vector<Channel> val;
+    vector<pair<Channel, int>> val;
     hashObj* next = nullptr;
 };
 
@@ -23,8 +24,8 @@ class HashMap {
 public:
     HashMap();
     int calculateHash(string id);
-    void insert(string key, Channel val);
-    vector<Channel> retrieve(string key);
+    void insert(string key, pair<Channel, int>& val);
+    vector<pair<Channel, int>> retrieve(string& key);
     int size();
     bool empty();
     int count(string key);
