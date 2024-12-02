@@ -20,13 +20,13 @@ vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
     return adjList[a.id];
 }
 
-vector<pair<string, int>> Graph::Dijkstra(Channel source) {
-    unordered_map<string, int> distances;
-    unordered_map<string, string> previous;
-    priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
+vector<pair<int, int>> Graph::Dijkstra(Channel source) {
+    unordered_map<int, int> distances;
+    unordered_map<int, int> previous;
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
-        string key = it->first;
+        int key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
         previous[key] = "-1"; // Initialize previous channel to "-1"
     }
@@ -56,19 +56,19 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
             }
         }
     }
-    vector<pair<string, int>> result;
+    vector<pair<int, int>> result;
     for (auto it = distances.begin(); it != distances.end(); ++it) {
         result.push_back({it->first, it->second});
     }
     return result;
 }
 
-vector<pair<string, int>> Graph::BellmanFord(Channel source){
-    unordered_map<string, int> distances;
-    unordered_map<string, string> previous;
+vector<pair<int, int>> Graph::BellmanFord(Channel source){
+    unordered_map<int, int> distances;
+    unordered_map<int, int> previous;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
-        string key = it->first;
+        int key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
         previous[key] = "-1"; // Initialize previous channel to "-1"
     }
@@ -77,7 +77,7 @@ vector<pair<string, int>> Graph::BellmanFord(Channel source){
     for (int i = 0; i < adjList.size(); ++i) {
         for (auto [u, neighbors] : adjList) {
                 for (auto& neighbor : neighbors) {
-                    string v = neighbor.first.id; 
+                    int v = neighbor.first.id;
                     int weight = neighbor.second;  
                     // relax
                     if (distances[u] != numeric_limits<int>::max() && distances[u] + weight < distances[v]) {
@@ -89,7 +89,7 @@ vector<pair<string, int>> Graph::BellmanFord(Channel source){
         if (i == adjList.size() - 1) {
             for (auto& [u, neighbors] : adjList) {
                 for (auto& neighbor : neighbors) {
-                    string v = neighbor.first.id;
+                    int v = neighbor.first.id;
                     int weight = neighbor.second;
 
                     // if Vth relax then there is a negative weight cycle
@@ -100,7 +100,7 @@ vector<pair<string, int>> Graph::BellmanFord(Channel source){
             }
         }
     }
-    vector<pair<string, int>> result;
+    vector<pair<int, int>> result;
     for (auto it = distances.begin(); it != distances.end(); ++it) {
         result.push_back({it->first, it->second});
     }
