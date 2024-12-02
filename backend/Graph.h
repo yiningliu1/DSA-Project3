@@ -1,8 +1,8 @@
 #ifndef PROJECT3_GRAPH_H
 #define PROJECT3_GRAPH_H
 #include <iostream>
-#include "HashMap.h"
 #include <queue>
+#include "Channel.h"
 #include <unordered_map>
 #include <limits>
 using namespace std;
