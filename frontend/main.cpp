@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -37,6 +38,25 @@ vector<Channel> readChannels() {
     file.close();
     return channels;
 }
+
+int calculateWeight(Channel& a, Channel& b){
+    int max = 70;
+    int categoryWeight = (a.category == b.category) ? 30 : 0;
+    int countryWeight = (a.country == b.country) ? 20 : 0;
+
+    int subDiff = (a.subscribers - b.subscribers);
+    int maxSub = std::max(a.subscribers, b.subscribers);
+    int subWeight = 20 * (1 - (subDiff / maxSub));
+
+    int Weight = max - (categoryWeight + countryWeight + subWeight);
+    return Weight;
+}
+
+void RandomizeConnections(){
+
+}
+
+
 
 int main() {
     // read in all the channels
