@@ -5,6 +5,7 @@
 #include "Channel.h"
 #include <unordered_map>
 #include <limits>
+#include <vector>
 using namespace std;
 
 class Graph {
