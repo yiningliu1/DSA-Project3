@@ -1,5 +1,5 @@
-#include "Channel.h"
-#include "Graph.h"
+#include "../backend/Channel.h"
+#include "../backend/Graph.h"
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -8,10 +8,6 @@
 #include <bits/stdc++.h>
 #include <SFML/Graphics.hpp>
 using namespace std;
-
-void insertVertices(vector<Channel> channels) {
-    rand();
-}
 
 vector<Channel> readChannels() {
     vector<Channel> channels;
@@ -48,10 +44,10 @@ void setText(sf::Text &text, float x, float y){
 
 int main() {
     // read in all the channels
-    sf::RenderWindow window(sf::VideoMode(800, 800), "SFML Works!");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "Youtube Recommender");
     sf::RenderWindow resultwindow;
     sf::Font font;
-    if (!font.loadFromFile("files/font.ttf")) {
+    if (!font.loadFromFile("../files/font.ttf")) {
         cout << "error" << endl;
     }
     sf::Text text1;
@@ -165,6 +161,7 @@ int main() {
         resultwindow.draw(channel5);
         resultwindow.display();
     }
+
     srand(time(0));
     return 0;
 }
