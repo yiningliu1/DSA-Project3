@@ -11,8 +11,7 @@ add_executable(Project3
         backend/Channel.cpp)
 
 set(SFML_STATIC_LIBRARIES TRUE)
-set(SFML_DIR C:/SFML/lib/cmake/SFML)
+set(SFML_DIR C:/SFML/lib/cmake/SFML) # should be link to your SFML directory
 find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
 
-include_directories(c:/SFML/include/SFML)
 target_link_libraries(Project3 sfml-system sfml-window sfml-graphics sfml-audio)
