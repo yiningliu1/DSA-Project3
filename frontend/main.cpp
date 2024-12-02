@@ -106,6 +106,7 @@ int main() {
         window.display();
     }
 
+
     sf::Text text3;
     sf::Text channel1;
     sf::Text channel2;
