@@ -1,0 +1,3 @@
+C:/Users/shelt/CLionProjects/DSA_Project3/cmake-build-debug/CMakeFiles/DSA_Project3.dir
+C:/Users/shelt/CLionProjects/DSA_Project3/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/shelt/CLionProjects/DSA_Project3/cmake-build-debug/CMakeFiles/rebuild_cache.dir

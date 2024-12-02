@@ -1,0 +1,6 @@
+# ninja log v5
+564	1279	7548176199692887	DSA_Project3.exe	ceccde7c1a7c7c9b
+6	563	7548176192635952	CMakeFiles/DSA_Project3.dir/main.cpp.obj	8ed2e5d4cf6c463f
+52	1618	7548688626045282	build.ninja	b01d825ea634e546
+4	5586	7548688684369775	CMakeFiles/DSA_Project3.dir/main.cpp.obj	e150ba4a03988c35
+5587	7363	7548688702031591	DSA_Project3.exe	ceccde7c1a7c7c9b
