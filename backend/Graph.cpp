@@ -4,18 +4,6 @@ void Graph::addEdge(Channel& a, Channel& b, int weight) {
     adjList[b.id].push_back(make_pair(a, weight));
 }
 
-bool Graph::hasEdge(Channel a, Channel b) {
-    auto it = adjList.find(a.id);
-    if (it != adjList.end()) {
-        for (auto& neighbor : it->second) {
-            if (neighbor.first.id == b.id) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
     return adjList[a.id];
 }
@@ -28,7 +16,7 @@ vector<pair<int, int>> Graph::Dijkstra(Channel source) {
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
         int key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
-        previous[key] = "-1"; // Initialize previous channel to "-1"
+        previous[key] = -1; // Initialize previous channel to "-1"
     }
     distances[source.id] = 0;
     pq.push({0, source.id});
@@ -70,7 +58,7 @@ vector<pair<int, int>> Graph::BellmanFord(Channel source){
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
         int key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
-        previous[key] = "-1"; // Initialize previous channel to "-1"
+        previous[key] = -1; // Initialize previous channel to "-1"
     }
     distances[source.id] = 0;
     //relax V times to check for negative weight cycle

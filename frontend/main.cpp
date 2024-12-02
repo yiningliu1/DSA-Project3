@@ -6,9 +6,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// TODO: make function to insert all edge weights into the graph, code up sorts, frontend
-
 void insertVertices(vector<Channel> channels) {
+    rand();
+}
+
+vector<Channel> readChannels() {
 
 }
 

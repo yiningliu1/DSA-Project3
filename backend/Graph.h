@@ -10,7 +10,7 @@ using namespace std;
 
 class Graph {
 private:
-    unordered_map<string, vector<pair<Channel, int>>> adjList;
+    unordered_map<int, vector<pair<Channel, int>>> adjList;
 
 public:
     Graph();
