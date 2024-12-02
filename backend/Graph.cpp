@@ -1,11 +1,4 @@
 #include "Graph.h"
-
-void Graph::addChannel(const Channel& channel) {
-    if (adjList.find(channel.id) == adjList.end()) {
-        adjList[channel.id] = {};
-    }
-}
-
 void Graph::addEdge(Channel& a, Channel& b, int weight) {
     adjList[a.id].push_back(make_pair(b, weight));
     adjList[b.id].push_back(make_pair(a, weight));
