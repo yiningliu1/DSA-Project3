@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include <map>
 void Graph::addEdge(Channel& a, Channel& b, int weight) {
     adjList[a.id].push_back(make_pair(b, weight));
     adjList[b.id].push_back(make_pair(a, weight));
@@ -9,7 +10,7 @@ vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
 }
 
 vector<pair<int, int>> Graph::Dijkstra(Channel source) {
-    unordered_map<int, int> distances;
+    map<int, int> distances;
     unordered_map<int, int> previous;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
