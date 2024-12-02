@@ -13,11 +13,8 @@ private:
     unordered_map<int, vector<pair<Channel, int>>> adjList;
 
 public:
-    Graph();
     void addEdge(Channel& a, Channel& b, int weight);
-    bool hasEdge(Channel a, Channel b);
     vector<pair<Channel, int>> getNeighbors(Channel a);
-    void addChannel(const Channel &channel);
     vector<pair<int, int>> Dijkstra(Channel a);
     vector<pair<int, int>> BellmanFord(Channel source);
 };

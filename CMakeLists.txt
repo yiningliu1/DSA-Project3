@@ -1,23 +1,17 @@
-cmake_minimum_required(VERSION 3.27)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+cmake_minimum_required(VERSION 3.24)
 project(Project3)
 
-include_directories(backend)
-
-set(SFML_STATIC_LIBRARIES TRUE)
-
-# set to your SFML directory
-set(SFML_DIR "C:/Users/shelt/Downloads/SFML-2.5.1-windows-gcc-7.3.0-mingw-64-bit/SFML-2.5.1/lib/cmake/SFML")
-
-find_package(SFML 2.5.1 COMPONENTS system window graphics audio REQUIRED)
+set(CMAKE_CXX_STANDARD 14)
 
 add_executable(Project3
         backend/Graph.cpp
         backend/Graph.h
         frontend/main.cpp
         backend/Channel.h
-        backend/Channel.cpp
-)
+        backend/Channel.cpp)
+
+set(SFML_STATIC_LIBRARIES TRUE)
+set(SFML_DIR C:/SFML/lib/cmake/SFML) # should be link to your SFML directory
+find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
 
 target_link_libraries(Project3 sfml-system sfml-window sfml-graphics sfml-audio)
