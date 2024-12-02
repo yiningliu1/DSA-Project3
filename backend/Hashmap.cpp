@@ -127,3 +127,7 @@ int HashMap::calculateHash(string id) {
 HashMap::~HashMap() {
     clearBuckets();
 }
+
+vector<hashObj*> HashMap::getBuckets(){
+    return buckets;
+}

@@ -20,7 +20,7 @@ class HashMap {
     vector<hashObj*> buckets;
     void clearBuckets();
     ~HashMap();
-
+    
 public:
     HashMap();
     int calculateHash(string id);
@@ -30,6 +30,7 @@ public:
     bool empty();
     int count(string key);
     void rebalance();
+    vector<hashObj*> getBuckets();
 };
 
 #endif //PROJECT3_HASHMAP_H
