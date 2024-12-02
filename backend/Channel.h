@@ -5,12 +5,12 @@ using namespace std;
 
 struct Channel {
     int id;
+    string name;
     string country;
     int category;
-    int subscribers;
-    string name;
     string pictureURL;
     string profileURL;
+    int subscribers;
 
     Channel(int i, string n, string cntry, int cat, string pic, string prof, int subs);
 };

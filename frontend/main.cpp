@@ -3,14 +3,41 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <bits/stdc++.h>
 #include <SFML/Graphics.hpp>
 using namespace std;
 
-// TODO: make function to insert all edge weights into the graph, code up sorts, frontend
-
 void insertVertices(vector<Channel> channels) {
+    rand();
+}
 
+vector<Channel> readChannels() {
+    vector<Channel> channels;
+    ifstream file("../channels.csv");
+    string line;
+    getline(file, line);
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string cat, cat_name, id, country, followers, picURL, profURL, title, numVids;
+
+        getline(ss, cat, ',');
+        getline(ss, cat_name, ',');
+        getline(ss, id, ',');
+        getline(ss, country, ',');
+        getline(ss, followers, ',');
+        getline(ss, picURL, ',');
+        getline(ss, profURL, ',');
+        getline(ss, title, ',');
+        getline(ss, numVids, ',');
+        // int i, string n, string cntry, int cat, string pic, string prof, int subs
+        Channel newChan(stoi(id), title, country, stoi(cat), picURL, profURL, stoi(followers));
+        channels.push_back(newChan);
+    }
+
+    file.close();
+    return channels;
 }
 
 void setText(sf::Text &text, float x, float y){
