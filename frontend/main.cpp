@@ -1,16 +1,18 @@
 #include "../backend/Channel.h"
 #include "../backend/Graph.h"
 #include <chrono>
-#include <thread>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <bits/stdc++.h>
+#include <unordered_set>
+#include <unordered_map>
+#include <thread>
 #include <SFML/Graphics.hpp>
 using namespace std;
 
-vector<Channel> readChannels() {
+// function to read in all the channels
+vector<Channel> readChannels(unordered_map<string, int>& idMap) {
     vector<Channel> channels;
     ifstream file("../channels.csv");
     string line;
@@ -44,26 +46,65 @@ void setText(sf::Text &text, float x, float y){
 }
 
 int calculateWeight(Channel& a, Channel& b){
-    int max = 70;
-    int categoryWeight = (a.category == b.category) ? 30 : 0;
-    int countryWeight = (a.country == b.country) ? 20 : 0;
+    int categoryWeight = (a.category == b.category) ? 0 : 3333;
+    int countryWeight = (a.country == b.country) ? 0 : 3333;
 
     int subDiff = (a.subscribers - b.subscribers);
     int maxSub = std::max(a.subscribers, b.subscribers);
-    int subWeight = 20 * (1 - (subDiff / maxSub));
+    int subWeight = 3333 * (1 - (subDiff / maxSub));
 
-    int Weight = max - (categoryWeight + countryWeight + subWeight);
-    return Weight;
+    int weight = 1 + categoryWeight + countryWeight + subWeight;
+    return weight;
 }
 
-void RandomizeConnections(){
-
+void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& graph) {
+    unordered_set<int> connected;
+    connected.insert(c1.id-1);
+    int totalChannels = channels.size();
+    for (int i = 0; i < 25; i++) {
+        int randChannel = rand() % totalChannels;
+        if (connected.find(randChannel) != connected.end()) {
+            i--;
+            continue;
+        }
+        connected.insert(randChannel);
+        Channel c2 = channels[randChannel];
+        int weight = calculateWeight(c1, c2);
+        graph.addEdge(c1, c2, weight);
+    }
 }
 
+void addEdges(const vector<Channel>& channels, Graph& graph) {
+    srand(time(0));
+    for (Channel c: channels) {
+        RandomizeConnections(c, channels, graph);
+    }
+}
 
+vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& ids, Graph& graph, Channel source) {
+    auto start = chrono::high_resolution_clock::now();
+    vector<pair<int, int>> res = graph.Dijkstra(source);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+
+    cout << "Dijkstra time elapsed: " << duration.count() << " milliseconds" << endl;
+
+    start = chrono::high_resolution_clock::now();
+    graph.BellmanFord(source);
+    end = std::chrono::high_resolution_clock::now();
+    duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+
+    cout << "Bellman Ford time elapsed: " << duration.count() << " milliseconds" << endl;
+
+    // return a vector of the channels with the shortest weights
+}
 
 int main() {
-    // read in all the channels
+    Graph graph;
+    unordered_map<string, int> ids;
+    vector<Channel> channels = readChannels(ids);
+    addEdges(channels, graph);
+
     sf::RenderWindow window(sf::VideoMode(800, 800), "Youtube Recommender");
     sf::RenderWindow resultwindow;
     sf::Font font;
@@ -108,9 +149,10 @@ int main() {
                     playerInput.pop_back();
                     playerText.setString(playerInput + "|");
                 }
-                if (event.text.unicode == 13) {
+                if (event.text.unicode == 13) { // after user presses enter
+                    performSearch(channels, ids, graph, channels[0]);
                     window.close();
-                    resultwindow.create(sf::VideoMode(800, 800), "Game Window");
+                    resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
                 }
             }
         }
@@ -181,7 +223,5 @@ int main() {
         resultwindow.draw(channel5);
         resultwindow.display();
     }
-
-    srand(time(0));
     return 0;
 }
