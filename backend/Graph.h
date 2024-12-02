@@ -18,8 +18,8 @@ public:
     bool hasEdge(Channel a, Channel b);
     vector<pair<Channel, int>> getNeighbors(Channel a);
     void addChannel(const Channel &channel);
-    vector<pair<string, int>> Dijkstra(Channel a);
-    vector<pair<string, int>> BellmanFord(Channel source);
+    vector<pair<int, int>> Dijkstra(Channel a);
+    vector<pair<int, int>> BellmanFord(Channel source);
 };
 
 
