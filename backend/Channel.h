@@ -4,18 +4,15 @@
 using namespace std;
 
 struct Channel {
-    string id;
-    string name;
+    int id;
     string country;
-    string category;
+    int category;
+    int subscribers;
+    string name;
     string pictureURL;
     string profileURL;
-    int numVideos;
-    int subscribers;
 
-    Channel(string i, string n, string cntry, string cat, string pic, string prof, int numVid, int subs);
-
-
+    Channel(int i, string n, string cntry, int cat, string pic, string prof, int subs);
 };
 
 

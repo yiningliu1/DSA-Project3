@@ -1,12 +1,14 @@
 #ifndef PROJECT3_GRAPH_H
 #define PROJECT3_GRAPH_H
 #include <iostream>
-#include "HashMap.h"
+#include <vector>
+#include "Channel.h"
+#include <unordered_map>
 using namespace std;
 
 class Graph {
 private:
-    HashMap adjList;
+    unordered_map<int, vector<pair<Channel, int>>> adjList;
 
 public:
     Graph();
