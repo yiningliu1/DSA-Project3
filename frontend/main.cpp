@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <bits/stdc++.h>
 #include <SFML/Graphics.hpp>
 using namespace std;
@@ -41,6 +42,25 @@ void setText(sf::Text &text, float x, float y){
     text.setOrigin(textRect.left + textRect.width/2.0f,textRect.top + textRect.height/2.0f);
     text.setPosition(sf::Vector2f(x, y));
 }
+
+int calculateWeight(Channel& a, Channel& b){
+    int max = 70;
+    int categoryWeight = (a.category == b.category) ? 30 : 0;
+    int countryWeight = (a.country == b.country) ? 20 : 0;
+
+    int subDiff = (a.subscribers - b.subscribers);
+    int maxSub = std::max(a.subscribers, b.subscribers);
+    int subWeight = 20 * (1 - (subDiff / maxSub));
+
+    int Weight = max - (categoryWeight + countryWeight + subWeight);
+    return Weight;
+}
+
+void RandomizeConnections(){
+
+}
+
+
 
 int main() {
     // read in all the channels
