@@ -56,7 +56,6 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
 }
 
 unordered_map<string, int> Graph::BellmanFord(Channel source) {
-    cout << "test" << endl;
     unordered_map<string, int> distances;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {

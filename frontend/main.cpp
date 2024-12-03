@@ -11,7 +11,7 @@
 using namespace std;
 
 // function to read in all the channels
-vector<Channel> readChannels(unordered_map<string, Channel>& chanMap) {
+vector<Channel> readChannels(unordered_map<string, int>& chanMap) {
     vector<Channel> channels;
     ifstream file("../channels.csv");
     string line;
@@ -32,7 +32,7 @@ vector<Channel> readChannels(unordered_map<string, Channel>& chanMap) {
 
         Channel newChan(stoi(id), title, country, stoi(cat), picURL, profURL, stoi(followers));
 
-        chanMap[title] = newChan;
+        chanMap[title] = channels.size();
 
         channels.push_back(newChan);
     }
@@ -86,16 +86,17 @@ void addEdges(const vector<Channel>& channels, Graph& graph) {
     }
 }
 
-vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, Channel>& chanMap, Graph& graph, const string& name) {
+vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& chanMap, Graph& graph, const string& name) {
+    cout << name << " " << chanMap[name] << " " << channels[chanMap[name]].name << endl;
     auto start = chrono::high_resolution_clock::now();
-    vector<pair<string, int>> res = graph.Dijkstra(chanMap[name]);
+    vector<pair<string, int>> res = graph.Dijkstra(channels[chanMap[name]]);
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
     cout << "Dijkstra time elapsed: " << duration.count() << " milliseconds" << endl;
 
     start = chrono::high_resolution_clock::now();
-    unordered_map<string, int> bf = graph.BellmanFord(chanMap[name]);
+    unordered_map<string, int> bf = graph.BellmanFord(channels[chanMap[name]]);
     end = std::chrono::high_resolution_clock::now();
     duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
@@ -107,7 +108,7 @@ vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<str
 
     vector<Channel> closest;
     for (auto i: res) {
-        closest.push_back(chanMap[i.first]);
+        closest.push_back(channels[chanMap[i.first]]);
     }
 
     return closest;
@@ -116,9 +117,9 @@ vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<str
 int main() {
     vector<Channel> recs;
     Graph graph;
-    unordered_map<string, Channel> channels;
-    vector<Channel> chanVect = readChannels(channels);
-    addEdges(chanVect, graph);
+    unordered_map<string, int> inds;
+    vector<Channel> channels = readChannels(inds);
+    addEdges(channels, graph);
 
     sf::RenderWindow window(sf::VideoMode(800, 800), "Youtube Recommender");
     sf::RenderWindow resultwindow;
@@ -165,13 +166,12 @@ int main() {
                     playerText.setString(playerInput + "|");
                 }
                 if (event.text.unicode == 13) { // after user presses enter
-                    cout << playerInput << endl;
                     string chanName = playerInput.substr(0, playerInput.size()-1);
-                    if (channels.find(chanName) == channels.end()) {
+                    if (inds.find(chanName) == inds.end()) {
                         text2.setString("That channel does not exist. Please try something else:");
                         setText(text2, 400, 200);
                     } else {
-                        recs = performSearch(chanVect, channels, graph, chanName);
+                        recs = performSearch(channels, inds, graph, chanName);
                         window.close();
                         resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
                     }
