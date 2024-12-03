@@ -10,13 +10,14 @@ using namespace std;
 
 class Graph {
 private:
-    unordered_map<int, vector<pair<Channel, int>>> adjList;
+    unordered_map<string, vector<pair<Channel, int>>> adjList;
 
 public:
     void addEdge(Channel& a, Channel& b, int weight);
     vector<pair<Channel, int>> getNeighbors(Channel a);
-    vector<pair<int, int>> Dijkstra(Channel a);
-    vector<pair<int, int>> BellmanFord(Channel source);
+    vector<pair<string, int>> Dijkstra(Channel a);
+    unordered_map<string, int> BellmanFord(Channel source);
+    int calculateWeight(Channel& a, Channel& b);
 };
 
 
