@@ -101,14 +101,6 @@ vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<str
 
     bTime = duration.count();
 
-    for (auto i: res) {
-        cout << i.first << ", " << i.second << endl;
-    }
-
-    for (auto i: bf) {
-        cout << i.first << ", " << i.second << endl;
-    }
-
     vector<Channel> closest;
     for (auto i: res) {
         closest.push_back(channels[chanMap[i.first]]);
@@ -176,9 +168,9 @@ int main() {
                         text2.setString("That channel does not exist. Please try something else:");
                         setText(text2, 400, 200);
                     } else {
+                        text2.setString("Loading...");
+                        setText(text2, 400, 200);
                         recs = performSearch(channels, inds, graph, chanName, dTime, bTime);
-                        cout << dTime << endl;
-                        cout << bTime << endl;
                         window.close();
                         resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
                     }
