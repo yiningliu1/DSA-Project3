@@ -16,7 +16,7 @@ public:
     void addEdge(Channel& a, Channel& b, int weight);
     vector<pair<Channel, int>> getNeighbors(Channel a);
     vector<pair<string, int>> Dijkstra(Channel a);
-    unordered_map<string, int> BellmanFord(Channel source);
+    vector<pair<string, int>>  BellmanFord(Channel source);
     int calculateWeight(Channel& a, Channel& b);
 };
 

@@ -56,7 +56,7 @@ int calculateWeight(Channel& a, Channel& b){
 
     int subDiff = abs(a.subscribers - b.subscribers);
     int maxSub = std::max(a.subscribers, b.subscribers);
-    int subWeight =  2500 * ((double)subDiff / (double)maxSub);
+    int subWeight =  2000 * ((double)subDiff / (double)maxSub);
 
     int weight = 1 + categoryWeight + countryWeight + subWeight;
     return weight;
@@ -66,7 +66,7 @@ void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& gr
     unordered_set<int> connected;
     connected.insert(c1.id-1);
     int totalChannels = channels.size();
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 10; i++) {
         int randChannel = rand() % totalChannels;
         if (connected.find(randChannel) != connected.end()) {
             i--;
@@ -86,24 +86,27 @@ void addEdges(const vector<Channel>& channels, Graph& graph) {
     }
 }
 
-vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& chanMap, Graph& graph, const string& name) {
-    cout << name << " " << chanMap[name] << " " << channels[chanMap[name]].name << endl;
+vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& chanMap, Graph& graph, const string& name, int& dTime, int& bTime) {
     auto start = chrono::high_resolution_clock::now();
     vector<pair<string, int>> res = graph.Dijkstra(channels[chanMap[name]]);
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Dijkstra time elapsed: " << duration.count() << " milliseconds" << endl;
+    dTime = duration.count();
 
     start = chrono::high_resolution_clock::now();
-    unordered_map<string, int> bf = graph.BellmanFord(channels[chanMap[name]]);
+    vector<pair<string, int>> bf = graph.BellmanFord(channels[chanMap[name]]);
     end = std::chrono::high_resolution_clock::now();
     duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Bellman Ford time elapsed: " << duration.count() << " milliseconds" << endl;
+    bTime = duration.count();
 
     for (auto i: res) {
-        cout << bf[i.first] << " " << i.second << endl;
+        cout << i.first << ", " << i.second << endl;
+    }
+
+    for (auto i: bf) {
+        cout << i.first << ", " << i.second << endl;
     }
 
     vector<Channel> closest;
@@ -115,6 +118,8 @@ vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<str
 }
 
 int main() {
+    int dTime = 0;
+    int bTime = 0;
     vector<Channel> recs;
     Graph graph;
     unordered_map<string, int> inds;
@@ -171,7 +176,9 @@ int main() {
                         text2.setString("That channel does not exist. Please try something else:");
                         setText(text2, 400, 200);
                     } else {
-                        recs = performSearch(channels, inds, graph, chanName);
+                        recs = performSearch(channels, inds, graph, chanName, dTime, bTime);
+                        cout << dTime << endl;
+                        cout << bTime << endl;
                         window.close();
                         resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
                     }
