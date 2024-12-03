@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include <thread>
 #include <SFML/Graphics.hpp>
 using namespace std;
 
@@ -33,9 +32,11 @@ vector<Channel> readChannels(unordered_map<string, int>& idMap) {
         // int i, string n, string cntry, int cat, string pic, string prof, int subs
         Channel newChan(stoi(id), title, country, stoi(cat), picURL, profURL, stoi(followers));
         channels.push_back(newChan);
+        idMap[title] = stoi(id);
     }
 
     file.close();
+
     return channels;
 }
 
@@ -43,18 +44,6 @@ void setText(sf::Text &text, float x, float y){
     sf::FloatRect textRect = text.getLocalBounds();
     text.setOrigin(textRect.left + textRect.width/2.0f,textRect.top + textRect.height/2.0f);
     text.setPosition(sf::Vector2f(x, y));
-}
-
-int calculateWeight(Channel& a, Channel& b){
-    int categoryWeight = (a.category == b.category) ? 0 : 3333;
-    int countryWeight = (a.country == b.country) ? 0 : 3333;
-
-    int subDiff = (a.subscribers - b.subscribers);
-    int maxSub = std::max(a.subscribers, b.subscribers);
-    int subWeight = 3333 * (1 - (subDiff / maxSub));
-
-    int weight = 1 + categoryWeight + countryWeight + subWeight;
-    return weight;
 }
 
 void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& graph) {
@@ -69,7 +58,7 @@ void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& gr
         }
         connected.insert(randChannel);
         Channel c2 = channels[randChannel];
-        int weight = calculateWeight(c1, c2);
+        int weight = graph.calculateWeight(c1, c2);
         graph.addEdge(c1, c2, weight);
     }
 }
@@ -81,25 +70,30 @@ void addEdges(const vector<Channel>& channels, Graph& graph) {
     }
 }
 
-vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& ids, Graph& graph, Channel source) {
+vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& ids, Graph& graph, string name) {
     auto start = chrono::high_resolution_clock::now();
-    vector<pair<int, int>> res = graph.Dijkstra(source);
-    auto end = std::chrono::high_resolution_clock::now();
+    cout << channels[ids[name]-1].name << endl;
+    vector<pair<string, int>> res = graph.Dijkstra(channels[ids[name]-1]);
+    auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Dijkstra time elapsed: " << duration.count() << " milliseconds" << endl;
+//    start = chrono::high_resolution_clock::now();
+//    graph.BellmanFord(source);
+//    end = std::chrono::high_resolution_clock::now();
+//    duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+//
+//    cout << "Bellman Ford time elapsed: " << duration.count() << " milliseconds" << endl;
 
-    start = chrono::high_resolution_clock::now();
-    graph.BellmanFord(source);
-    end = std::chrono::high_resolution_clock::now();
-    duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+    vector<Channel> closest;
+    for (auto i: res) {
+        closest.push_back(channels[ids[i.first]-1]);
+    }
 
-    cout << "Bellman Ford time elapsed: " << duration.count() << " milliseconds" << endl;
-
-    // return a vector of the channels with the shortest weights
+    return closest;
 }
 
 int main() {
+    vector<Channel> recs;
     Graph graph;
     unordered_map<string, int> ids;
     vector<Channel> channels = readChannels(ids);
@@ -150,9 +144,16 @@ int main() {
                     playerText.setString(playerInput + "|");
                 }
                 if (event.text.unicode == 13) { // after user presses enter
-                    performSearch(channels, ids, graph, channels[0]);
-                    window.close();
-                    resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
+                    cout << playerInput << endl;
+                    if (ids.find(playerInput) != ids.end()) {
+                        recs = performSearch(channels, ids, graph, playerInput);
+                        window.close();
+                        resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
+                    } else {
+                        text2.setString("That channel does not exist. Please try something else:");
+                        setText(text2, 200, 25);
+
+                    }
                 }
             }
         }
@@ -163,6 +164,7 @@ int main() {
         window.draw(playerText);
         window.display();
     }
+    cout << recs[0].name << endl;
 
     sf::Text text3;
     sf::Text channel1;
