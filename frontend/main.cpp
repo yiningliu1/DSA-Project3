@@ -7,12 +7,11 @@
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include <thread>
 #include <SFML/Graphics.hpp>
 using namespace std;
 
 // function to read in all the channels
-vector<Channel> readChannels(unordered_map<string, int>& idMap) {
+vector<Channel> readChannels(unordered_map<string, int>& chanMap) {
     vector<Channel> channels;
     ifstream file("../channels.csv");
     string line;
@@ -30,12 +29,16 @@ vector<Channel> readChannels(unordered_map<string, int>& idMap) {
         getline(ss, profURL, ',');
         getline(ss, title, ',');
         getline(ss, numVids, ',');
-        // int i, string n, string cntry, int cat, string pic, string prof, int subs
+
         Channel newChan(stoi(id), title, country, stoi(cat), picURL, profURL, stoi(followers));
+
+        chanMap[title] = channels.size();
+
         channels.push_back(newChan);
     }
 
     file.close();
+
     return channels;
 }
 
@@ -46,12 +49,14 @@ void setText(sf::Text &text, float x, float y){
 }
 
 int calculateWeight(Channel& a, Channel& b){
-    int categoryWeight = (a.category == b.category) ? 0 : 3333;
-    int countryWeight = (a.country == b.country) ? 0 : 3333;
+    int categoryWeight = 0;
+    int countryWeight = 0;
+    if (a.category != b.category)  categoryWeight = 10000;
+    if (a.country != b.country)  countryWeight = 2500;
 
-    int subDiff = (a.subscribers - b.subscribers);
+    int subDiff = abs(a.subscribers - b.subscribers);
     int maxSub = std::max(a.subscribers, b.subscribers);
-    int subWeight = 3333 * (1 - (subDiff / maxSub));
+    int subWeight =  2000 * ((double)subDiff / (double)maxSub);
 
     int weight = 1 + categoryWeight + countryWeight + subWeight;
     return weight;
@@ -61,7 +66,7 @@ void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& gr
     unordered_set<int> connected;
     connected.insert(c1.id-1);
     int totalChannels = channels.size();
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 10; i++) {
         int randChannel = rand() % totalChannels;
         if (connected.find(randChannel) != connected.end()) {
             i--;
@@ -81,28 +86,36 @@ void addEdges(const vector<Channel>& channels, Graph& graph) {
     }
 }
 
-vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& ids, Graph& graph, Channel source) {
+vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& chanMap, Graph& graph, const string& name, int& dTime, int& bTime) {
     auto start = chrono::high_resolution_clock::now();
-    vector<pair<int, int>> res = graph.Dijkstra(source);
-    auto end = std::chrono::high_resolution_clock::now();
+    vector<pair<string, int>> res = graph.Dijkstra(channels[chanMap[name]]);
+    auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Dijkstra time elapsed: " << duration.count() << " milliseconds" << endl;
+    dTime = duration.count();
 
     start = chrono::high_resolution_clock::now();
-    graph.BellmanFord(source);
+    vector<pair<string, int>> bf = graph.BellmanFord(channels[chanMap[name]]);
     end = std::chrono::high_resolution_clock::now();
     duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    cout << "Bellman Ford time elapsed: " << duration.count() << " milliseconds" << endl;
+    bTime = duration.count();
 
-    // return a vector of the channels with the shortest weights
+    vector<Channel> closest;
+    for (auto i: res) {
+        closest.push_back(channels[chanMap[i.first]]);
+    }
+
+    return closest;
 }
 
 int main() {
+    int dTime = 0;
+    int bTime = 0;
+    vector<Channel> recs;
     Graph graph;
-    unordered_map<string, int> ids;
-    vector<Channel> channels = readChannels(ids);
+    unordered_map<string, int> inds;
+    vector<Channel> channels = readChannels(inds);
     addEdges(channels, graph);
 
     sf::RenderWindow window(sf::VideoMode(800, 800), "Youtube Recommender");
@@ -150,9 +163,17 @@ int main() {
                     playerText.setString(playerInput + "|");
                 }
                 if (event.text.unicode == 13) { // after user presses enter
-                    performSearch(channels, ids, graph, channels[0]);
-                    window.close();
-                    resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
+                    string chanName = playerInput.substr(0, playerInput.size()-1);
+                    if (inds.find(chanName) == inds.end()) {
+                        text2.setString("That channel does not exist. Please try something else:");
+                        setText(text2, 400, 200);
+                    } else {
+                        text2.setString("Loading...");
+                        setText(text2, 400, 200);
+                        recs = performSearch(channels, inds, graph, chanName, dTime, bTime);
+                        window.close();
+                        resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
+                    }
                 }
             }
         }
@@ -163,7 +184,6 @@ int main() {
         window.draw(playerText);
         window.display();
     }
-
 
     sf::Text text3;
     sf::Text channel1;
@@ -177,32 +197,44 @@ int main() {
     text3.setFillColor(sf::Color::White);
     setText(text3, 400, 25);
     text3.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    text4.setFont(font);
+    text4.setString("Djikstra Time: " + to_string(dTime));
+    text4.setCharacterSize(30);
+    text4.setFillColor(sf::Color::White);
+    setText(text4, 200, 500);
+    text4.setStyle(sf::Text::Bold);
+    text5.setFont(font);
+    text5.setString("BellMan's Time: " + to_string(bTime));
+    text5.setCharacterSize(30);
+    text5.setFillColor(sf::Color::White);
+    setText(text5, 600, 500);
+    text5.setStyle(sf::Text::Bold);
     channel1.setFont(font);
-    channel1.setString("1");
+    channel1.setString("1. " + recs[0].name);
     channel1.setCharacterSize(20);
     channel1.setFillColor(sf::Color::White);
     setText(channel1, 400, 200);
     channel1.setStyle(sf::Text::Bold);
     channel2.setFont(font);
-    channel2.setString("2");
+    channel2.setString("2. " + recs[1].name);
     channel2.setCharacterSize(20);
     channel2.setFillColor(sf::Color::White);
     setText(channel2, 400, 250);
     channel2.setStyle(sf::Text::Bold);
     channel3.setFont(font);
-    channel3.setString("3");
+    channel3.setString("3. " + recs[2].name);
     channel3.setCharacterSize(20);
     channel3.setFillColor(sf::Color::White);
     setText(channel3, 400, 300);
     channel3.setStyle(sf::Text::Bold);
     channel4.setFont(font);
-    channel4.setString("4");
+    channel4.setString("4. " + recs[3].name);
     channel4.setCharacterSize(20);
     channel4.setFillColor(sf::Color::White);
     setText(channel4, 400, 350);
     channel4.setStyle(sf::Text::Bold);
     channel5.setFont(font);
-    channel5.setString("5");
+    channel5.setString("5. " + recs[4].name);
     channel5.setCharacterSize(20);
     channel5.setFillColor(sf::Color::White);
     setText(channel5, 400, 400);
