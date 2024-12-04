@@ -194,6 +194,8 @@ int main() {
 
     // initialize text and background for new, results window
     sf::Text text3;
+    sf::Text text4;
+    sf::Text text5;
     sf::Text channel1;
     sf::Text channel2;
     sf::Text channel3;
@@ -257,6 +259,8 @@ int main() {
         }
         resultwindow.clear(sf::Color::Red);
         resultwindow.draw(text3);
+        resultwindow.draw(text4);
+        resultwindow.draw(text5);
         resultwindow.draw(channel1);
         resultwindow.draw(channel2);
         resultwindow.draw(channel3);
