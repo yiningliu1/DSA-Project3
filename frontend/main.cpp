@@ -186,6 +186,8 @@ int main() {
     }
 
     sf::Text text3;
+    sf::Text text4;
+    sf::Text text5;
     sf::Text channel1;
     sf::Text channel2;
     sf::Text channel3;
@@ -198,14 +200,14 @@ int main() {
     setText(text3, 400, 25);
     text3.setStyle(sf::Text::Bold | sf::Text::Underlined);
     text4.setFont(font);
-    text4.setString("Djikstra Time: " + to_string(dTime));
-    text4.setCharacterSize(30);
+    text4.setString("Djikstra Time: " + to_string(dTime) + " ms");
+    text4.setCharacterSize(15);
     text4.setFillColor(sf::Color::White);
     setText(text4, 200, 500);
     text4.setStyle(sf::Text::Bold);
     text5.setFont(font);
-    text5.setString("BellMan's Time: " + to_string(bTime));
-    text5.setCharacterSize(30);
+    text5.setString("BellMan's Time: " + to_string(bTime) + " ms");
+    text5.setCharacterSize(15);
     text5.setFillColor(sf::Color::White);
     setText(text5, 600, 500);
     text5.setStyle(sf::Text::Bold);
