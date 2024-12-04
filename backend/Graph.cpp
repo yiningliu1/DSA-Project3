@@ -1,111 +1,111 @@
 #include "Graph.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <limits>
+#include <vector>
+#include <string>
+using namespace std;
 
 void Graph::addEdge(Channel& a, Channel& b, int weight) {
-    adjList[a.id].push_back(make_pair(b, weight));
-    adjList[b.id].push_back(make_pair(a, weight));
+    adjList[a.name].push_back(make_pair(b, weight));
+    adjList[b.name].push_back(make_pair(a, weight));
 }
 
 vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
-    return adjList[a.id];
+    return adjList[a.name];
 }
 
-vector<pair<int, int>> Graph::Dijkstra(Channel source) {
-    unordered_map<int, int> distances;
-    unordered_map<int, int> previous;
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+vector<pair<string, int>> Graph::Dijkstra(Channel source) {
+    unordered_set<string> visited;
+    unordered_map<string, int> distances;
+    int counter = 0;
+    priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
+    vector<pair<string, int>> result;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
-        int key = it->first;
+        string key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
-        previous[key] = -1; // Initialize previous channel to "-1"
     }
-    distances[source.id] = 0;
-    pq.push({0, source.id});
+    distances[source.name] = 0;
+    pq.push({0, source.name});
 
     while (!pq.empty()) {
-        auto [currentDist, currentId] = pq.top();
+        auto [currentDist, currentName] = pq.top();
+        if (counter++ < 6 && currentDist != 0) {
+            result.push_back({currentName, currentDist});
+            visited.insert(currentName);
+        }
         pq.pop();
-
-        //relax old dist
-        if (currentDist > distances[currentId]) {
+        if (visited.find(currentName) != visited.end()) {
             continue;
         }
-
-        for (auto it = adjList[currentId].begin(); it != adjList[currentId].end(); ++it) {
+        // Relax old distance
+        if (currentDist > distances[currentName]) {
+            continue;
+        }
+        for (auto it = adjList[currentName].begin(); it != adjList[currentName].end(); ++it) {
             Channel neighborChannel = it->first;
             int weight = it->second;
-
             int newDistance = currentDist + weight;
-
             // Relax edge
-            if (newDistance < distances[neighborChannel.id]) {
-                distances[neighborChannel.id] = newDistance;
-                previous[neighborChannel.id] = currentId;
-                pq.push({newDistance, neighborChannel.id});
+            if (newDistance < distances[neighborChannel.name] && visited.find(neighborChannel.name) == visited.end()) {
+                distances[neighborChannel.name] = newDistance;
+                pq.push({newDistance, neighborChannel.name});
             }
         }
-    }
-    vector<pair<int, int>> result;
-    for (auto it = distances.begin(); it != distances.end(); ++it) {
-        result.push_back({it->first, it->second});
     }
     return result;
 }
 
-vector<pair<int, int>> Graph::BellmanFord(Channel source){
-    unordered_map<int, int> distances;
-    unordered_map<int, int> previous;
+vector<pair<string, int>> Graph::BellmanFord(Channel source) {
+    unordered_map<string, int> distances;
+    vector<pair<string, int>> result;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
-        int key = it->first;
+        string key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
-        previous[key] = -1; // Initialize previous channel to "-1"
     }
-    distances[source.id] = 0;
-    //relax V times to check for negative weight cycle
-    for (int i = 0; i < adjList.size(); ++i) {
-        for (auto [u, neighbors] : adjList) {
-                for (auto& neighbor : neighbors) {
-                    int v = neighbor.first.id;
-                    int weight = neighbor.second;  
-                    // relax
-                    if (distances[u] != numeric_limits<int>::max() && distances[u] + weight < distances[v]) {
-                        distances[v] = distances[u] + weight;
-                        previous[v] = u;
-                    }
-                }
-            }
-        if (i == adjList.size() - 1) {
-            for (auto& [u, neighbors] : adjList) {
-                for (auto& neighbor : neighbors) {
-                    int v = neighbor.first.id;
-                    int weight = neighbor.second;
+    distances[source.name] = 0;
+    int i = 0;
 
-                    // if Vth relax then there is a negative weight cycle
-                    if (distances[u] != numeric_limits<int>::max() && distances[u] + weight < distances[v]) {
-                        return {}; 
-                    }
-                }
-            }
+    vector<tuple<string, string, int>> edges;
+    for (const auto& [u, neighbors] : adjList) {
+        for (const auto& neighbor : neighbors) {
+            edges.push_back({u, neighbor.first.name, neighbor.second});
         }
     }
-    vector<pair<int, int>> result;
-    for (auto it = distances.begin(); it != distances.end(); ++it) {
-        result.push_back({it->first, it->second});
+
+    bool relaxed = false;
+    // Relax V times to check for negative weight cycle
+    for (int i = 0; i < adjList.size(); i++) {
+        relaxed = false;
+        for (const auto& [u, v, weight] : edges) {
+            // Relax the edge
+            if (distances[u] != numeric_limits<int>::max() && distances[u] + weight < distances[v]) {
+                distances[v] = distances[u] + weight;
+                relaxed = true;
+            }
+        }
+        if (!relaxed) {
+            break;
+        }
+
+        // On the V-th iteration there's a negative weight cycle if relax
+        if (i == adjList.size() - 1 && relaxed) {
+            return {};
+        }
     }
-    return result;
-}   
+
+    priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
+    for (const auto& [node, distance] : distances) {
+        if (distance != numeric_limits<int>::max()) {
+            pq.push({distance, node});
+        }
+    }
 
     // Extract the top 5 shortest distances
     pq.pop();
-    for (int i = 0; i < 5 && !pq.empty(); i++) {
-        auto [dist, node] = pq.top();
-        pq.pop();
-        result.push_back({node, dist});
-    }
-    return result;
-}
-    // Extract the top 5 shortest distances
     for (int i = 0; i < 5 && !pq.empty(); i++) {
         auto [dist, node] = pq.top();
         pq.pop();
