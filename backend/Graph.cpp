@@ -7,15 +7,13 @@
 #include <string>
 using namespace std;
 
+// adds edge between two channels
 void Graph::addEdge(Channel& a, Channel& b, int weight) {
     adjList[a.name].push_back(make_pair(b, weight));
     adjList[b.name].push_back(make_pair(a, weight));
 }
 
-vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
-    return adjList[a.name];
-}
-
+// performs Dijkstra's algorithm on all vertices, only returns 5 closest
 vector<pair<string, int>> Graph::Dijkstra(Channel source) {
     unordered_set<string> visited;
     unordered_map<string, int> distances;
@@ -32,7 +30,7 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
 
     while (!pq.empty()) {
         auto [currentDist, currentName] = pq.top();
-        if (counter++ < 6 && currentDist != 0) {
+        if (counter++ < 6 && currentDist != 0) { // only save 5 shortest distances to result
             result.push_back({currentName, currentDist});
             visited.insert(currentName);
         }
@@ -58,6 +56,7 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
     return result;
 }
 
+// performs Bellman Ford on all vertices, only returns 5 closest
 vector<pair<string, int>> Graph::BellmanFord(Channel source) {
     unordered_map<string, int> distances;
     vector<pair<string, int>> result;

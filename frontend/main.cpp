@@ -32,6 +32,7 @@ vector<Channel> readChannels(unordered_map<string, int>& chanMap) {
 
         Channel newChan(stoi(id), title, country, stoi(cat), picURL, profURL, stoi(followers));
 
+        // save titles to a map that stores the indices
         chanMap[title] = channels.size();
 
         channels.push_back(newChan);
@@ -42,12 +43,14 @@ vector<Channel> readChannels(unordered_map<string, int>& chanMap) {
     return channels;
 }
 
+// sets SFML text
 void setText(sf::Text &text, float x, float y){
     sf::FloatRect textRect = text.getLocalBounds();
     text.setOrigin(textRect.left + textRect.width/2.0f,textRect.top + textRect.height/2.0f);
     text.setPosition(sf::Vector2f(x, y));
 }
 
+// calculates the weight for an edge between two channels
 int calculateWeight(Channel& a, Channel& b){
     int categoryWeight = 0;
     int countryWeight = 0;
@@ -62,11 +65,12 @@ int calculateWeight(Channel& a, Channel& b){
     return weight;
 }
 
+// randomly creates edges between channels
 void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& graph) {
     unordered_set<int> connected;
     connected.insert(c1.id-1);
     int totalChannels = channels.size();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) { // selects 10 random channels for each channel
         int randChannel = rand() % totalChannels;
         if (connected.find(randChannel) != connected.end()) {
             i--;
@@ -79,6 +83,7 @@ void RandomizeConnections(Channel c1, const vector<Channel>& channels, Graph& gr
     }
 }
 
+// calls randomizeConnections on every channel
 void addEdges(const vector<Channel>& channels, Graph& graph) {
     srand(time(0));
     for (Channel c: channels) {
@@ -86,20 +91,21 @@ void addEdges(const vector<Channel>& channels, Graph& graph) {
     }
 }
 
+// calls Dijkstra and Bellman Ford search on specified channel and returns the 5 closest channels
 vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<string, int>& chanMap, Graph& graph, const string& name, int& dTime, int& bTime) {
     auto start = chrono::high_resolution_clock::now();
     vector<pair<string, int>> res = graph.Dijkstra(channels[chanMap[name]]);
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    dTime = duration.count();
+    dTime = duration.count(); // time for Dijkstra execution in milliseconds
 
     start = chrono::high_resolution_clock::now();
     vector<pair<string, int>> bf = graph.BellmanFord(channels[chanMap[name]]);
     end = std::chrono::high_resolution_clock::now();
     duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 
-    bTime = duration.count();
+    bTime = duration.count(); // time for Bellman Ford execution in milliseconds
 
     vector<Channel> closest;
     for (auto i: res) {
@@ -110,6 +116,7 @@ vector<Channel> performSearch(const vector<Channel>& channels, unordered_map<str
 }
 
 int main() {
+    // initialize variables
     int dTime = 0;
     int bTime = 0;
     vector<Channel> recs;
@@ -118,6 +125,7 @@ int main() {
     vector<Channel> channels = readChannels(inds);
     addEdges(channels, graph);
 
+    // render first window and set text and background
     sf::RenderWindow window(sf::VideoMode(800, 800), "Youtube Recommender");
     sf::RenderWindow resultwindow;
     sf::Font font;
@@ -145,14 +153,14 @@ int main() {
     playerText.setFillColor(sf::Color::White);
     playerText.setStyle(sf::Text::Bold);
 
-    while (window.isOpen()) {
+    while (window.isOpen()) { // event loop for first window
         setText(playerText, 400, 250);
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            if (event.type == sf::Event::TextEntered) {
+            if (event.type == sf::Event::TextEntered) { // modify text displayed on screen
                 if (isalpha(event.text.unicode) || isdigit(event.text.unicode) || isspace(event.text.unicode)) {
                     char a = event.text.unicode;
                     playerInput += a;
@@ -164,15 +172,14 @@ int main() {
                 }
                 if (event.text.unicode == 13) { // after user presses enter
                     string chanName = playerInput.substr(0, playerInput.size()-1);
-                    if (inds.find(chanName) == inds.end()) {
+                    if (inds.find(chanName) == inds.end()) { // ensure channel exists
                         text2.setString("That channel does not exist. Please try something else:");
                         setText(text2, 400, 200);
-                    } else {
-                        text2.setString("Loading...");
+                    } else { // open results window and perform search on channel
                         setText(text2, 400, 200);
-                        recs = performSearch(channels, inds, graph, chanName, dTime, bTime);
                         window.close();
                         resultwindow.create(sf::VideoMode(800, 800), "Youtube Recommender");
+                        recs = performSearch(channels, inds, graph, chanName, dTime, bTime);
                     }
                 }
             }
@@ -185,6 +192,7 @@ int main() {
         window.display();
     }
 
+    // initialize text and background for new, results window
     sf::Text text3;
     sf::Text channel1;
     sf::Text channel2;
@@ -228,7 +236,7 @@ int main() {
     setText(channel5, 400, 400);
     channel5.setStyle(sf::Text::Bold);
 
-    while (resultwindow.isOpen()) {
+    while (resultwindow.isOpen()) { // event loop for results window
         sf::Event event;
         while (resultwindow.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
