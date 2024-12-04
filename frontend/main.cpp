@@ -214,7 +214,7 @@ int main() {
     setText(text4, 200, 500);
     text4.setStyle(sf::Text::Bold);
     text5.setFont(font);
-    text5.setString("BellMan's Time: " + to_string(bTime) + " ms");
+    text5.setString("BellMan Ford Time: " + to_string(bTime) + " ms");
     text5.setCharacterSize(15);
     text5.setFillColor(sf::Color::White);
     setText(text5, 600, 500);
