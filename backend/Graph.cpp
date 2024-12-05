@@ -7,22 +7,22 @@
 #include <string>
 using namespace std;
 
+// adds edge between two channels
 void Graph::addEdge(Channel& a, Channel& b, int weight) {
     adjList[a.name].push_back(make_pair(b, weight));
     adjList[b.name].push_back(make_pair(a, weight));
 }
 
-vector<pair<Channel, int>> Graph::getNeighbors(Channel a) {
-    return adjList[a.name];
-}
-
+// performs Dijkstra's algorithm on all vertices, only returns 5 closest
 vector<pair<string, int>> Graph::Dijkstra(Channel source) {
+    //set of visited channels to optimize processing
     unordered_set<string> visited;
     unordered_map<string, int> distances;
     int counter = 0;
     priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
     vector<pair<string, int>> result;
 
+    //initialize distances to inf
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
         string key = it->first;
         distances[key] = numeric_limits<int>::max(); // Set distance to infinity
@@ -32,11 +32,13 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
 
     while (!pq.empty()) {
         auto [currentDist, currentName] = pq.top();
-        if (counter++ < 6 && currentDist != 0) {
+        // if we haven't visited node
+        if (counter++ < 6 && currentDist != 0) { // only save 5 shortest distances to result
             result.push_back({currentName, currentDist});
             visited.insert(currentName);
         }
         pq.pop();
+        // skip if channel is already processed
         if (visited.find(currentName) != visited.end()) {
             continue;
         }
@@ -44,7 +46,8 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
         if (currentDist > distances[currentName]) {
             continue;
         }
-        for (auto it = adjList[currentName].begin(); it != adjList[currentName].end(); ++it) {
+        //iterating through all neighbors and relaxing
+        for (auto it = adjList[currentName].begin(); it != adjList[currentName].end(); it++) {
             Channel neighborChannel = it->first;
             int weight = it->second;
             int newDistance = currentDist + weight;
@@ -58,8 +61,10 @@ vector<pair<string, int>> Graph::Dijkstra(Channel source) {
     return result;
 }
 
+// performs Bellman Ford on all vertices, only returns 5 closest
 vector<pair<string, int>> Graph::BellmanFord(Channel source) {
     unordered_map<string, int> distances;
+    //result returns top 5 shortest distances
     vector<pair<string, int>> result;
 
     for (auto it = adjList.begin(); it != adjList.end(); it++) {
@@ -69,9 +74,10 @@ vector<pair<string, int>> Graph::BellmanFord(Channel source) {
     distances[source.name] = 0;
     int i = 0;
 
+    //edge list to store in tuple
     vector<tuple<string, string, int>> edges;
-    for (const auto& [u, neighbors] : adjList) {
-        for (const auto& neighbor : neighbors) {
+    for (auto& [u, neighbors] : adjList) {
+        for (auto& neighbor : neighbors) {
             edges.push_back({u, neighbor.first.name, neighbor.second});
         }
     }
@@ -80,25 +86,27 @@ vector<pair<string, int>> Graph::BellmanFord(Channel source) {
     // Relax V times to check for negative weight cycle
     for (int i = 0; i < adjList.size(); i++) {
         relaxed = false;
-        for (const auto& [u, v, weight] : edges) {
+        for (auto& [u, v, weight] : edges) {
             // Relax the edge
             if (distances[u] != numeric_limits<int>::max() && distances[u] + weight < distances[v]) {
                 distances[v] = distances[u] + weight;
                 relaxed = true;
             }
         }
+        //if no relaxation, stop early
         if (!relaxed) {
             break;
         }
-
+        
         // On the V-th iteration there's a negative weight cycle if relax
         if (i == adjList.size() - 1 && relaxed) {
             return {};
         }
     }
 
+    // sorts all distances
     priority_queue<pair<int, string>, vector<pair<int, string>>, greater<pair<int, string>>> pq;
-    for (const auto& [node, distance] : distances) {
+    for (auto& [node, distance] : distances) {
         if (distance != numeric_limits<int>::max()) {
             pq.push({distance, node});
         }

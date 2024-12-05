@@ -3,6 +3,7 @@
 #define PROJECT3_CHANNEL_H
 using namespace std;
 
+// struct to organize information about each channel
 struct Channel {
     int id;
     string name;
